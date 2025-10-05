@@ -5,34 +5,43 @@ import sys
 sys.setrecursionlimit(2000)
 
 class QuicksortRecursivo:
-    # Implementação comum do QuickSort
+    def __init__(self):
+        # Inicializa os contadores de métricas de desempenho para o algoritmo.
+        self.comparisons = 0
+        self.swaps = 0
+
+    def reset_counters(self):
+        # Zera os contadores para permitir uma nova execução de teste limpa.
+        self.comparisons = 0
+        self.swaps = 0
     
     def sort(self, array):
         self._quicksort(array, 0, len(array) - 1)
         
     def _quicksort(self, array, low, high):
+        # A verificação 'if low < high' é uma comparação fundamental da lógica do Quicksort.
+        self.comparisons += 1
         if low < high:
-            # Encontra o pivô de tal forma que os elementos menores
-            # ficam à sua esquerda e os maiores à sua direita.
             pivot = self._partition(array, low, high)
-            
-            # Ordena recursivamente as duas listas (metade menor e metade maior)
             self._quicksort(array, low, pivot - 1)
             self._quicksort(array, pivot + 1, high)
             
     def _partition(self, array, low, high):
-        # Reparte a lista da recursão atual escolhendo o último elemento como o pivô
         pivot = array[high]
         i = low - 1
         
-        # Percorre a lista e move os elementos menores que o pivô para a esquerda
         for j in range(low, high):
+            # Conta a comparação de cada elemento com o pivô.
+            self.comparisons += 1
             if array[j] <= pivot:
                 i += 1
                 array[i], array[j] = array[j], array[i]
+                # Conta a troca de posição entre elementos.
+                self.swaps += 1
         
-        # Coloca o pivô para sua posição correta.
         array[i + 1], array[high] = array[high], array[i + 1]
+        # Conta a troca final que coloca o pivô em sua posição correta.
+        self.swaps += 1
         return i + 1
     
 class QuicksortHibrido:
@@ -46,6 +55,14 @@ class QuicksortHibrido:
             raise ValueError("M deve ser um valor positivo")
         
         self.M = M
+        # Inicializa os contadores de métricas de desempenho para o algoritmo
+        self.comparisons = 0
+        self.swaps = 0
+
+    def reset_counters(self):
+        # Zera os contadores para permitir uma nova execução de teste limpa
+        self.comparisons = 0
+        self.swaps = 0
     
     def sort(self, array):
         # Processo de ordenação
@@ -57,15 +74,23 @@ class QuicksortHibrido:
             key = array[i]
             j = i - 1
             
+            # Conta a primeira comparação do 'while' para cada elemento.
+            self.comparisons += 1
             while j >= low and array[j] > key:
+                # Conta as comparações subsequentes dentro do 'while'.
+                self.comparisons += 1
                 array[j + 1] = array[j]
+                # Movimentar um elemento é análogo a uma troca de valores.
+                self.swaps += 1
                 j -= 1
             
             array[j + 1] = key
     
     def _quicksort(self, array, low, high):
+        self.comparisons += 1 # Verificação 'if low < high'
         if low < high:
-            # Se o tamanho da sub-lista for menor que M, usa o insertion sort
+            # Compara o tamanho do sub-vetor com o limiar M.
+            self.comparisons += 1
             if (high - low + 1) < self.M:
                 self._insertion_sort(array, low, high)
             else:
@@ -78,23 +103,35 @@ class QuicksortHibrido:
         i = low - 1
         
         for j in range(low, high):
+            # Conta a comparação de cada elemento com o pivô.
+            self.comparisons += 1
             if array[j] <= pivot:
                 i += 1
                 array[i], array[j] = array[j], array[i]
+                self.swaps += 1
                 
         array[i + 1], array[high] = array[high], array[i + 1]
+        self.swaps += 1
         return i + 1
 
 class QuickSortHibridoMedianaDeTres:
     # Versão melhorada do Quicksort Híbrido.
     # Utiliza a técnica da "Mediana de Três" para escolher um pivô mais eficaz,
-    # reduzindo a chance de pegar o pior caso (lista já ordenada).
+    # reduzindo a chance de pegar o pior caso (lista já ordenada)
     
     def __init__(self, M):
         if M < 1:
             raise ValueError("M deve ser um valor positivo")
         
         self.M = M
+        # Inicializa os contadores de métricas de desempenho para o algoritmo.
+        self.comparisons = 0
+        self.swaps = 0
+
+    def reset_counters(self):
+        # Zera os contadores para permitir uma nova execução de teste limpa.
+        self.comparisons = 0
+        self.swaps = 0
     
     def sort(self, array):
         self._quicksort(array, 0, len(array) - 1)
@@ -105,15 +142,19 @@ class QuickSortHibridoMedianaDeTres:
             key = array[i]
             j = i - 1
             
+            self.comparisons += 1 # Primeira comparação do 'while'
             while j >= low and array[j] > key:
+                self.comparisons += 1 # Comparações subsequentes
                 array[j + 1] = array[j]
+                self.swaps += 1
                 j -= 1
             
             array[j + 1] = key
             
     def _quicksort(self, array, low, high):
+        self.comparisons += 1 # Verificação 'if low < high'
         if low < high:
-            # Se o tamanho da sub-lista for menor que M, usa o insertion sort
+            self.comparisons += 1 # Verificação do tamanho vs M
             if (high - low + 1) < self.M:
                 self._insertion_sort(array, low, high)
             else:
@@ -122,75 +163,49 @@ class QuickSortHibridoMedianaDeTres:
                 self._quicksort(array, pivot + 1, high)
                 
     def _mediana(self, array, low, high):
-        # Calcula a mediana entre o primeiro, o meio e o último elemento
-        # e a coloca na penúltima posição para ser usada como pivô
         mid = (low + high) // 2
         
+        # Cada 'if' representa uma comparação para encontrar a mediana.
+        self.comparisons += 1
         if array[low] > array[mid]:
             array[low], array[mid] = array[mid], array[low]
+            self.swaps += 1
         
+        self.comparisons += 1
         if array[low] > array[high]:
             array[low], array[high] = array[high], array[low]
+            self.swaps += 1
             
+        self.comparisons += 1
         if array[mid] > array[high]:
             array[mid], array[high] = array[high], array[mid]
+            self.swaps += 1
             
-        # O pivô (mediana) é movido para a posição 'high'
+        # Move a mediana para a posição do pivô.
         array[mid], array[high] = array[high], array[mid]
+        self.swaps += 1
         return array[high]
     
     def _partition(self, array, low, high):
-        # Particiona a lista usando o pivô obtido da mediana de três
         pivot = self._mediana(array, low, high)
         i = low -1
         
         for j in range(low, high):
+            self.comparisons += 1
             if array[j] <= pivot:
                 i += 1
                 array[i], array[j] = array[j], array[i]
+                self.swaps += 1
         
         array[i + 1], array[high] = array[high], array[i + 1]
+        self.swaps += 1
         return i + 1
-    
-
-def rodar_testes(nome_teste, vetor_original, sorter_a, sorter_b, sorter_c):
-    # Executa ordenações com os 3 algoritmos para um dado vetor e mede o tempo 
-    print(f"\n --- TESTE ATUAL: {nome_teste} ---")
-    
-    # cópias do vetor para garantir ordenação da mesma lista
-    vetor_a = vetor_original.copy()
-    vetor_b = vetor_original.copy()
-    vetor_c = vetor_original.copy()
-    
-    # Quicksort Recursivo
-    inicio_a = time.perf_counter()
-    sorter_a.sort(vetor_a)
-    fim_a = time.perf_counter()
-    print(f"Tempo Quicksort Recursivo: {fim_a - inicio_a:.6f}s")
-    
-    # Quicksort Hibrido
-    inicio_b = time.perf_counter()
-    sorter_b.sort(vetor_b)
-    fim_b = time.perf_counter()
-    print(f"Tempo Quicksort Recursivo: {fim_b - inicio_b:.6f}s")
-    
-    # Quicksort Hibrido com Mediana de Três
-    inicio_c = time.perf_counter()
-    sorter_c.sort(vetor_c)
-    fim_c = time.perf_counter()
-    print(f"Tempo Quicksort Recursivo: {fim_c - inicio_c:.6f}s")
-    
-    # ordeno o vetor usando uma função padrão no Python para validar se 
-    # os testes foram ordenados corretamente
-    vetor_validador = sorted(vetor_original)
-    assert vetor_a == vetor_validador
-    assert vetor_b == vetor_validador
-    assert vetor_c == vetor_validador
-    print("Todos os vetores foram ordenados corretamente.")
 
 def main():
     TAMANHO_VETOR = 1000
-    NUM_TESTS = 10
+    NUM_TESTS_M = 10
+    # Define o número de execuções para cada cenário de teste para calcular a média
+    NUM_EXECUCOES_FINAL = 10
     
     # ! Parte 1: Determinar o melhor valor de M para o Quicksort Híbrido
     
@@ -198,13 +213,9 @@ def main():
     melhor_m = -1
     melhor_tempo = float('inf')
     
-    # Testaremos com valores de M de 5 a 50
-    for m_candidato in range(5, 51):
-        # medir o tempo de cada um
+    for m_candidato in range(5, 51, 5):
         tempo_total = 0
-        
-        for _ in range(NUM_TESTS):
-            # inicializa o vetor de teste com numeros inteiros randomicos
+        for _ in range(NUM_TESTS_M):
             vetor_teste = [random.randint(0, TAMANHO_VETOR * 10) for _ in range(TAMANHO_VETOR)]
             sort_hibrido = QuicksortHibrido(M=m_candidato)
             
@@ -214,11 +225,7 @@ def main():
             
             tempo_total += (fim - inicio)
             
-        tempo_medio = tempo_total / NUM_TESTS
-        # ! Tire esse print caso queira ver o tempo médio de cada M
-        # print(f"Com M = {m_candidato}: Tempo médio = {tempo_medio:.6f}s")
-        
-        # dados comparativos
+        tempo_medio = tempo_total / NUM_TESTS_M
         if tempo_medio < melhor_tempo:
             melhor_tempo = tempo_medio
             melhor_m = m_candidato
@@ -227,27 +234,57 @@ def main():
     
     # ! Parte 2: Comparar as implementações com diferentes massas de testes
     
-    # instanciando os algoritmos
+    print(f"--- Iniciando comparação final com {NUM_EXECUCOES_FINAL} execuções por teste ---")
+
+    # Estrutura para definir os diferentes cenários de teste a serem executados.
+    testes = [
+        {"nome": "Vetor Aleatório (Caso Médio)", "gerador": lambda: [random.randint(0, TAMANHO_VETOR * 10) for _ in range(TAMANHO_VETOR)]},
+        {"nome": "Vetor Ordenado (Pior Caso para 'a' e 'b')", "gerador": lambda: list(range(TAMANHO_VETOR))},
+        {"nome": "Vetor Ordenado Inversamente (Pior Caso para 'a' e 'b')", "gerador": lambda: list(range(TAMANHO_VETOR - 1, -1, -1))},
+        {"nome": "Vetor com Elementos Repetidos", "gerador": lambda: [random.randint(0, int(TAMANHO_VETOR * 0.1)) for _ in range(TAMANHO_VETOR)]}
+    ]
+
     sorter_a = QuicksortRecursivo()
     sorter_b = QuicksortHibrido(M=melhor_m)
     sorter_c = QuickSortHibridoMedianaDeTres(M=melhor_m)
-    
-    # Teste 1: Vetor com elementos aleatórios (caso médio)
-    vetor_randomico = [random.randint(0, TAMANHO_VETOR * 10) for _ in range(TAMANHO_VETOR)]
-    rodar_testes("Vetor Aleatório (Caso Médio)", vetor_randomico, sorter_a, sorter_b, sorter_c)
-    
-    # Teste 2: Vetor já ordenado (pior caso para o Quicksort com pivô na ponta)
-    vetor_ordenado = list(range(TAMANHO_VETOR))
-    rodar_testes("Vetor Ordenado (Pior caso para 'a' e 'b')", vetor_ordenado, sorter_a, sorter_b, sorter_c)
-    
-    # Teste 3: Vetor ordenado de forma inversa (outro pior caso)
-    vetor_inverso = list(range(TAMANHO_VETOR - 1, -1, -1))
-    rodar_testes("Vetor Ordenado Inversamente (Pior caso para 'a' e 'b')", vetor_inverso, sorter_a, sorter_b, sorter_c)
-    
-    # Teste 4: Vetor com muitos elementos repetidos
-    repeticao = int(TAMANHO_VETOR * 0.1)
-    vetor_repetido = [random.randint(0, repeticao) for _ in range(TAMANHO_VETOR)]
-    rodar_testes("Vetor com Elementos Repetidos", vetor_repetido, sorter_a, sorter_b, sorter_c)
+    sorters = [sorter_a, sorter_b, sorter_c]
+
+    # ! Rodada de testes com cada um dos casos no vetor de objetos 'testes'
+    for teste in testes:
+        print(f"\n--- TESTE ATUAL: {teste['nome']} ---")
+
+        # Acumuladores para calcular as médias de tempo, comparações e trocas.
+        tempos = [0, 0, 0]
+        comparacoes = [0, 0, 0]
+        trocas = [0, 0, 0]
+        
+        # Executa o mesmo teste várias vezes para obter resultados consistentes e calcular a média.
+        for i in range(NUM_EXECUCOES_FINAL):
+            vetor_original = teste["gerador"]()
+            
+            for idx, sorter in enumerate(sorters):
+                vetor_copia = vetor_original.copy()
+                sorter.reset_counters()
+
+                inicio = time.perf_counter()
+                sorter.sort(vetor_copia)
+                fim = time.perf_counter()
+
+                # Soma os resultados da execução atual aos acumuladores.
+                tempos[idx] += (fim - inicio)
+                comparacoes[idx] += sorter.comparisons
+                trocas[idx] += sorter.swaps
+
+        # Calcula e imprime os resultados médios para o cenário de teste atual.
+        nomes = ["Quicksort Recursivo", f"Quicksort Híbrido (M={melhor_m})", "Quicksort Mediana de 3"]
+        print("Resultados Médios:")
+
+        for i in range(3):
+            print(f"  - {nomes[i]}:")
+            print(f"    Tempo: {tempos[i] / NUM_EXECUCOES_FINAL:.6f}s")
+            print(f"    Comparações: {comparacoes[i] / NUM_EXECUCOES_FINAL:.0f}")
+            print(f"    Trocas: {trocas[i] / NUM_EXECUCOES_FINAL:.0f}")
+
 
 if __name__ == "__main__":
     main()
